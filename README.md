@@ -1,4 +1,4 @@
-# MachineLearning1-FacialGestures
+# MachineLearning1-Facial_Gestures
 
 This is the repo for the facial gestures software.
 
