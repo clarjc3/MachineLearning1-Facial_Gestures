@@ -111,7 +111,9 @@ class App(QWidget):
 				for (x, y) in shape:
 					cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
 					#print(count)
-					if count > 36 and count < 49:
+					if count > 17 and count < 28:
+						cv2.circle(frame, (x, y), 2, (255, 255, 0), -1)
+					elif count > 36 and count < 49:
 						cv2.circle(frame, (x, y), 2, (255, 0, 0), -1)
 					elif count > 27 and count < 37:
 						cv2.circle(frame, (x, y), 2, (255, 255, 255), -1)
@@ -132,7 +134,7 @@ class App(QWidget):
 	def initUI(self):
 		self.setWindowTitle(self.title)
 		self.setGeometry(self.left, self.top, self.width, self.height)
-		QApplication.setStyle(QtWidgets.QStyleFactory.create('Windows'))
+		QApplication.setStyle(QtWidgets.QStyleFactory.create('Fusion'))
 		
 		self.setStyleSheet("QPushButton { background-color: gray; }\n"
               "QPushButton:enabled { background-color: green; }\n");
@@ -170,28 +172,28 @@ class App(QWidget):
 		self.styleChoice = QLabel("Windows Vista", self)
 		#Combobox
 		comboBox = QtWidgets.QComboBox(self)
-		comboBox.addItem("motif")
-		comboBox.addItem("Windows")
-		comboBox.addItem("cde")
-		comboBox.addItem("Plastique")
+		comboBox.addItem("a")
+		comboBox.addItem("s")
+		comboBox.addItem("d")
+		comboBox.addItem("f")
 		comboBox.addItem("Cleanlooks")
 		comboBox.addItem("windowsvista")
 		comboBox.move(50, 100)
 		
 		comboBox2 = QtWidgets.QComboBox(self)
-		comboBox2.addItem("motif")
-		comboBox2.addItem("Windows")
-		comboBox2.addItem("cde")
-		comboBox2.addItem("Plastique")
+		comboBox2.addItem("a")
+		comboBox2.addItem("s")
+		comboBox2.addItem("d")
+		comboBox2.addItem("f")
 		comboBox2.addItem("Cleanlooks")
 		comboBox2.addItem("windowsvista")
 		comboBox2.move(150, 100)
 
 		comboBox3 = QtWidgets.QComboBox(self)
-		comboBox3.addItem("motif")
-		comboBox3.addItem("Windows")
-		comboBox3.addItem("cde")
-		comboBox3.addItem("Plastique")
+		comboBox3.addItem("a")
+		comboBox3.addItem("s")
+		comboBox3.addItem("d")
+		comboBox3.addItem("f")
 		comboBox3.addItem("Cleanlooks")
 		comboBox3.addItem("windowsvista")
 		comboBox3.move(250, 100)
