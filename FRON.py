@@ -79,7 +79,6 @@ class App(QWidget):
 		cv2.destroyAllWindows()
 
 	def landmarks(self):
-		# Vamos inicializar um detector de faces (HOG) para então
 		# let's go code an faces detector(HOG) and after detect the 
 		# landmarks on this detected face
 
@@ -105,22 +104,58 @@ class App(QWidget):
 				# Make the prediction and transfom it to numpy array
 				shape = predictor(gray, rect)
 				shape = face_utils.shape_to_np(shape)
-			
+				
+				#lma=[]
+				
 				# Draw on our image, all the finded cordinate points (x,y)
 				count = 1
 				for (x, y) in shape:
-					cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
-					#print(count)
-					if count > 17 and count < 28:
-						cv2.circle(frame, (x, y), 2, (255, 255, 0), -1)
-					elif count > 36 and count < 49:
-						cv2.circle(frame, (x, y), 2, (255, 0, 0), -1)
-					elif count > 27 and count < 37:
-						cv2.circle(frame, (x, y), 2, (255, 255, 255), -1)
-					elif count > 48:
-						cv2.circle(frame, (x, y), 2, (0, 0, 255), -1)
-					count = count + 1
+					#coords=tuple([x, y])
+					#lma.append(coords)
 					
+					cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
+					# if count > 17 and count < 28:
+						# cv2.circle(frame, (x, y), 2, (255, 0, 0), -1)
+					# elif count > 36 and count < 49:
+						# cv2.circle(frame, (x, y), 2, (255, 0, 0), -1)
+					# elif count > 27 and count < 37:
+						# cv2.circle(frame, (x, y), 2, (0, 0, 255), -1)
+					# elif count > 48:
+						# cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
+					
+					count = count + 1
+				# Recognise gestures
+				# Baseline
+				base_line = ((shape[16][0]) - (shape[0][0]))
+				#print(base_line)
+				# Open mouth
+				mouth_top = ((shape[61][1]) + (shape[62][1]) + (shape[63][1]))/3
+				mouth_bottom = ((shape[65][1]) + (shape[66][1]) + (shape[67][1]))/3
+				mouth_height = mouth_bottom - mouth_top
+				if(mouth_height/base_line > 0.2):
+					print("Mouth opened! - ",(mouth_height/base_line))
+				
+				# Raise Eyebrow
+				eye_top = ((shape[18][1]) + (shape[19][1]) + (shape[20][1]) + (shape[23][1]) + (shape[24][1]) + (shape[25][1]))/6
+				eye_bottom = ((shape[27][1]) + (shape[28][1]))/2
+				eye_height = eye_bottom - eye_top
+				if(eye_height/base_line > 0.2):
+					print("Eyebrows raised! - ",(eye_height/base_line))
+				
+				# Smile
+				mouth_left = ((shape[48][0]) + (shape[49][0]) + (shape[59][0]) + (shape[60][0]))/4
+				mouth_right = ((shape[53][0]) + (shape[54][0]) + (shape[55][0]) + (shape[64][0]))/4
+				mouth_width = mouth_right - mouth_left
+				if(mouth_width/base_line > 0.34):
+					print("Smile detected! - ",(mouth_width/base_line))
+				
+				# Scrunch nose
+				nose_top = (shape[27][1])
+				nose_bottom = ((shape[31][1]) + (shape[35][1]))/2
+				nose_height = nose_bottom - nose_top
+				if(nose_height/base_line < 0.28):
+					print("Snarl detected! - ",(nose_height/base_line))
+				
 			# Show the image
 			cv2.imshow("Output", frame)
 			
@@ -169,15 +204,13 @@ class App(QWidget):
 		self.g.move(293, 69)
 		self.g.resize(320,40)
 		
-		self.styleChoice = QLabel("Windows Vista", self)
+		self.styleChoice = QLabel("Gesture Recognition", self)
 		#Combobox
 		comboBox = QtWidgets.QComboBox(self)
 		comboBox.addItem("a")
 		comboBox.addItem("s")
 		comboBox.addItem("d")
 		comboBox.addItem("f")
-		comboBox.addItem("Cleanlooks")
-		comboBox.addItem("windowsvista")
 		comboBox.move(50, 100)
 		
 		comboBox2 = QtWidgets.QComboBox(self)
@@ -185,8 +218,6 @@ class App(QWidget):
 		comboBox2.addItem("s")
 		comboBox2.addItem("d")
 		comboBox2.addItem("f")
-		comboBox2.addItem("Cleanlooks")
-		comboBox2.addItem("windowsvista")
 		comboBox2.move(150, 100)
 
 		comboBox3 = QtWidgets.QComboBox(self)
@@ -194,8 +225,6 @@ class App(QWidget):
 		comboBox3.addItem("s")
 		comboBox3.addItem("d")
 		comboBox3.addItem("f")
-		comboBox3.addItem("Cleanlooks")
-		comboBox3.addItem("windowsvista")
 		comboBox3.move(250, 100)
 		
 		self.styleChoice.move(50,180)
