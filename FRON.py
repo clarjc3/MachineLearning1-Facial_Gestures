@@ -105,21 +105,21 @@ class App(QWidget):
 				shape = predictor(gray, rect)
 				shape = face_utils.shape_to_np(shape)
 				
-				#lma=[]
-				
 				# Draw on our image, all the finded cordinate points (x,y)
 				count = 1
 				for (x, y) in shape:
-					#coords=tuple([x, y])
-					#lma.append(coords)
-					
+					#All points (Outline)
 					cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
+					# Eyebrows
 					# if count > 17 and count < 28:
 						# cv2.circle(frame, (x, y), 2, (255, 0, 0), -1)
+					# Eyes
 					# elif count > 36 and count < 49:
 						# cv2.circle(frame, (x, y), 2, (255, 0, 0), -1)
+					# Nose
 					# elif count > 27 and count < 37:
 						# cv2.circle(frame, (x, y), 2, (0, 0, 255), -1)
+					# Mouth
 					# elif count > 48:
 						# cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
 					
