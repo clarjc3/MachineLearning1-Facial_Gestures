@@ -132,7 +132,7 @@ class App(QWidget):
 				mouth_top = ((shape[61][1]) + (shape[62][1]) + (shape[63][1]))/3
 				mouth_bottom = ((shape[65][1]) + (shape[66][1]) + (shape[67][1]))/3
 				mouth_height = mouth_bottom - mouth_top
-				if(mouth_height/base_line > 0.2):
+				if(mouth_height/base_line > 0.18):
 					print("Mouth opened! - ",(mouth_height/base_line))
 				
 				# Raise Eyebrow
@@ -142,6 +142,13 @@ class App(QWidget):
 				if(eye_height/base_line > 0.2):
 					print("Eyebrows raised! - ",(eye_height/base_line))
 				
+				# Blink
+				eyelid_top = ((shape[37][1]) + (shape[38][1]) + (shape[43][1]) + (shape[44][1]))/4
+				eyelid_bottom = ((shape[40][1]) + (shape[41][1]) + (shape[46][1]) + (shape[47][1]))/4
+				eyelid_height = eyelid_bottom - eyelid_top
+				if(eyelid_height/base_line < 0.0225):
+					print("Blink detected! - ",(eyelid_height/base_line))
+				
 				# Smile
 				mouth_left = ((shape[48][0]) + (shape[49][0]) + (shape[59][0]) + (shape[60][0]))/4
 				mouth_right = ((shape[53][0]) + (shape[54][0]) + (shape[55][0]) + (shape[64][0]))/4
@@ -150,12 +157,12 @@ class App(QWidget):
 					print("Smile detected! - ",(mouth_width/base_line))
 				
 				# Scrunch nose
-				nose_top = (shape[27][1])
-				nose_bottom = ((shape[31][1]) + (shape[35][1]))/2
-				nose_height = nose_bottom - nose_top
-				if(nose_height/base_line < 0.28):
-					print("Snarl detected! - ",(nose_height/base_line))
-				
+				# nose_top = (shape[27][1])
+				# nose_bottom = ((shape[31][1]) + (shape[35][1]))/2
+				# nose_height = nose_bottom - nose_top
+				# if(nose_height/base_line < 0.25):
+					# print("Snarl detected! - ",(nose_height/base_line))
+
 			# Show the image
 			cv2.imshow("Output", frame)
 			
