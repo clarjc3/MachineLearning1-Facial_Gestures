@@ -116,10 +116,10 @@ class App(QWidget):
 					# Eyes
 					# elif count > 36 and count < 49:
 						# cv2.circle(frame, (x, y), 2, (255, 0, 0), -1)
-					# Nose
+					#Nose
 					# elif count > 27 and count < 37:
 						# cv2.circle(frame, (x, y), 2, (0, 0, 255), -1)
-					# Mouth
+					#Mouth
 					# elif count > 48:
 						# cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
 					
@@ -134,20 +134,21 @@ class App(QWidget):
 				mouth_height = mouth_bottom - mouth_top
 				if(mouth_height/base_line > 0.18):
 					print("Mouth opened! - ",(mouth_height/base_line))
+					
 				
 				# Raise Eyebrow
 				eye_top = ((shape[18][1]) + (shape[19][1]) + (shape[20][1]) + (shape[23][1]) + (shape[24][1]) + (shape[25][1]))/6
 				eye_bottom = ((shape[27][1]) + (shape[28][1]))/2
 				eye_height = eye_bottom - eye_top
-				if(eye_height/base_line > 0.2):
+				if(eye_height/base_line > 0.22):
 					print("Eyebrows raised! - ",(eye_height/base_line))
 				
-				# Blink
+				# Eye shut
 				eyelid_top = ((shape[37][1]) + (shape[38][1]) + (shape[43][1]) + (shape[44][1]))/4
 				eyelid_bottom = ((shape[40][1]) + (shape[41][1]) + (shape[46][1]) + (shape[47][1]))/4
 				eyelid_height = eyelid_bottom - eyelid_top
-				if(eyelid_height/base_line < 0.0225):
-					print("Blink detected! - ",(eyelid_height/base_line))
+				if(eyelid_height/base_line < 0.022):
+					print("Eye close detected! - ",(eyelid_height/base_line))
 				
 				# Smile
 				mouth_left = ((shape[48][0]) + (shape[49][0]) + (shape[59][0]) + (shape[60][0]))/4
@@ -156,12 +157,13 @@ class App(QWidget):
 				if(mouth_width/base_line > 0.34):
 					print("Smile detected! - ",(mouth_width/base_line))
 				
-				# Scrunch nose
-				# nose_top = (shape[27][1])
-				# nose_bottom = ((shape[31][1]) + (shape[35][1]))/2
-				# nose_height = nose_bottom - nose_top
-				# if(nose_height/base_line < 0.25):
-					# print("Snarl detected! - ",(nose_height/base_line))
+				# Anger
+				nose_top = ((shape[21][1]) + (shape[22][1]))/2
+				nose_bottom = ((shape[31][1]) + (shape[35][1]))/2
+				nose_height = nose_bottom - nose_top
+				#print(nose_height/base_line)
+				if(nose_height/base_line < 0.36):
+					print("Anger detected! - ",(nose_height/base_line))
 
 			# Show the image
 			cv2.imshow("Output", frame)
