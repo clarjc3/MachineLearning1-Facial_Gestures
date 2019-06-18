@@ -95,7 +95,7 @@ class App(QWidget):
 
 		cap = cv2.VideoCapture(0)
 			
-		gesture_arr = deque(maxlen=15)
+		gesture_arr = deque(maxlen=20)
 		gesture_arr.extend([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
 		
 		while True:
