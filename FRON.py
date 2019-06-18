@@ -6,6 +6,9 @@ from PyQt5.QtCore import pyqtSlot, QSize
 import cv2
 from imutils import face_utils
 import numpy as np
+from collections import deque
+from statistics import mean
+import time
 
 import dlib
 
@@ -25,7 +28,7 @@ class App(QWidget):
 		
 		# using the landmarks method
 		self.landmarks()
-		
+	
 	def webcam(self):
 		cap = cv2.VideoCapture(0)
 
@@ -77,6 +80,8 @@ class App(QWidget):
 		# When everything is done, release the capture
 		video_capture.release()
 		cv2.destroyAllWindows()
+	
+	
 
 	def landmarks(self):
 		# let's go code an faces detector(HOG) and after detect the 
@@ -89,7 +94,10 @@ class App(QWidget):
 		predictor = dlib.shape_predictor(p)
 
 		cap = cv2.VideoCapture(0)
-		 
+			
+		gesture_arr = deque(maxlen=15)
+		gesture_arr.extend([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
+		
 		while True:
 			# Getting out image by webcam 
 			_, frame = cap.read()
@@ -127,35 +135,42 @@ class App(QWidget):
 				# Recognise gestures
 				# Baseline
 				base_line = ((shape[16][0]) - (shape[0][0]))
-				#print(base_line)
+				
 				# Open mouth
 				mouth_top = ((shape[61][1]) + (shape[62][1]) + (shape[63][1]))/3
 				mouth_bottom = ((shape[65][1]) + (shape[66][1]) + (shape[67][1]))/3
 				mouth_height = mouth_bottom - mouth_top
 				if(mouth_height/base_line > 0.18):
-					print("Mouth opened! - ",(mouth_height/base_line))
-					
+					#print("Mouth opened! - ",(mouth_height/base_line))
+					gesture_arr.append(0)
+					#print(gesture_arr)
 				
 				# Raise Eyebrow
 				eye_top = ((shape[18][1]) + (shape[19][1]) + (shape[20][1]) + (shape[23][1]) + (shape[24][1]) + (shape[25][1]))/6
 				eye_bottom = ((shape[27][1]) + (shape[28][1]))/2
 				eye_height = eye_bottom - eye_top
 				if(eye_height/base_line > 0.22):
-					print("Eyebrows raised! - ",(eye_height/base_line))
+					#print("Eyebrows raised! - ",(eye_height/base_line))
+					gesture_arr.append(1)
+					#print(gesture_arr)
 				
 				# Eye shut
 				eyelid_top = ((shape[37][1]) + (shape[38][1]) + (shape[43][1]) + (shape[44][1]))/4
 				eyelid_bottom = ((shape[40][1]) + (shape[41][1]) + (shape[46][1]) + (shape[47][1]))/4
 				eyelid_height = eyelid_bottom - eyelid_top
 				if(eyelid_height/base_line < 0.022):
-					print("Eye close detected! - ",(eyelid_height/base_line))
+					#print("Eye close detected! - ",(eyelid_height/base_line))
+					gesture_arr.append(2)
+					#print(gesture_arr)
 				
 				# Smile
 				mouth_left = ((shape[48][0]) + (shape[49][0]) + (shape[59][0]) + (shape[60][0]))/4
 				mouth_right = ((shape[53][0]) + (shape[54][0]) + (shape[55][0]) + (shape[64][0]))/4
 				mouth_width = mouth_right - mouth_left
 				if(mouth_width/base_line > 0.34):
-					print("Smile detected! - ",(mouth_width/base_line))
+					#print("Smile detected! - ",(mouth_width/base_line))
+					gesture_arr.append(3)
+					#print(gesture_arr)
 				
 				# Anger
 				nose_top = ((shape[21][1]) + (shape[22][1]))/2
@@ -163,7 +178,28 @@ class App(QWidget):
 				nose_height = nose_bottom - nose_top
 				#print(nose_height/base_line)
 				if(nose_height/base_line < 0.36):
+					#print("Anger detected! - ",(nose_height/base_line))
+					gesture_arr.append(4)
+					#print(gesture_arr)
+				
+				gesture_output = max(set(gesture_arr), key=gesture_arr.count)
+				#gesture_output = int(round(mean(gesture_arr)))
+				#print(gesture_output)
+				
+				if(gesture_output == 0):
+					print("Mouth opened! - ",(mouth_height/base_line))
+				elif(gesture_output == 1):
+					print("Eyebrows raised! - ",(eye_height/base_line))
+				elif(gesture_output == 2):
+					print("Eye close detected! - ",(eyelid_height/base_line))
+				elif(gesture_output == 3):
+					print("Smile detected! - ",(mouth_width/base_line))
+				elif(gesture_output == 4):
 					print("Anger detected! - ",(nose_height/base_line))
+				
+				if(gesture_output == 0 or gesture_output == 1 or gesture_output == 2 or gesture_output == 3 or gesture_output == 4):
+					gesture_arr = deque(maxlen=20)
+					gesture_arr.extend([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
 
 			# Show the image
 			cv2.imshow("Output", frame)
