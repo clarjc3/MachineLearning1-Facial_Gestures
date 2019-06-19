@@ -1,16 +1,23 @@
+# Author: Joshua Clarke
+# NOTE: This program is not intended to be used as the final product, it was used for code testing and development of features for the final product.
+# 		Code was copied from here to the final product repo and the latest version can be found at: https://github.com/manulea/MITGUI
+
 import sys
+# Libraries for the PyQt5 GUI
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QMainWindow, QCheckBox, QApplication, QWidget, QPushButton, QLabel
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot, QSize
+
+# Libraries for computer vision and image processing
 import cv2
+import dlib
 from imutils import face_utils
+
+# Libraries for calculations
 import numpy as np
 from collections import deque
-from statistics import mean
 import time
-
-import dlib
 
 class App(QWidget):
 	def __init__(self):
@@ -23,8 +30,6 @@ class App(QWidget):
 		self.setWindowIcon(QtGui.QIcon('icon.png'))
 		
 		self.initUI()
-		# self.webcam()
-		# self.Face()
 		
 		# using the landmarks method
 		self.landmarks()
@@ -95,8 +100,8 @@ class App(QWidget):
 
 		cap = cv2.VideoCapture(0)
 			
-		gesture_arr = deque(maxlen=20)
-		gesture_arr.extend([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
+		gesture_arr = deque(maxlen=20) # This is a list-like container that is used to hold the last 20 gesture recognitions
+		gesture_arr.extend([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]) # Setting up the array with all non-gesture numbers
 		
 		while True:
 			# Getting out image by webcam 
@@ -114,6 +119,8 @@ class App(QWidget):
 				shape = face_utils.shape_to_np(shape)
 				
 				# Draw on our image, all the finded cordinate points (x,y)
+				# The following code is used to change the colour of the facial landmark points shown on the screen.
+				# You can set different parts of the face to different colours if you like.
 				count = 1
 				for (x, y) in shape:
 					#All points (Outline)
@@ -132,74 +139,62 @@ class App(QWidget):
 						# cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
 					
 					count = count + 1
-				# Recognise gestures
+				
+				# Gesture recognition code is show below
 				# Baseline
-				base_line = ((shape[16][0]) - (shape[0][0]))
+				base_line = ((shape[16][0]) - (shape[0][0])) # This fixes the issue of fake gesture recognitions when the user gets closer to, or moves away from, the camera. It uses the width of the users head as a proportional reference.
 				
 				# Open mouth
-				mouth_top = ((shape[61][1]) + (shape[62][1]) + (shape[63][1]))/3
-				mouth_bottom = ((shape[65][1]) + (shape[66][1]) + (shape[67][1]))/3
-				mouth_height = mouth_bottom - mouth_top
+				mouth_top = ((shape[61][1]) + (shape[62][1]) + (shape[63][1]))/3 # Take an average measurement of the top of the mouth.
+				mouth_bottom = ((shape[65][1]) + (shape[66][1]) + (shape[67][1]))/3 # Take an average measurement of the bottom of the mouth.
+				mouth_height = mouth_bottom - mouth_top # Calculate the distance between the top and bottom lips, i.e. if the mouth is open or shut.
 				if(mouth_height/base_line > 0.18):
-					#print("Mouth opened! - ",(mouth_height/base_line))
-					gesture_arr.append(0)
-					#print(gesture_arr)
+					gesture_arr.append(0) # If the calculated distance exceeds the threshold, add an open mouth gesture to the array (0)
 				
 				# Raise Eyebrow
-				eye_top = ((shape[18][1]) + (shape[19][1]) + (shape[20][1]) + (shape[23][1]) + (shape[24][1]) + (shape[25][1]))/6
-				eye_bottom = ((shape[27][1]) + (shape[28][1]))/2
-				eye_height = eye_bottom - eye_top
+				eye_top = ((shape[18][1]) + (shape[19][1]) + (shape[20][1]) + (shape[23][1]) + (shape[24][1]) + (shape[25][1]))/6 # Take an average measurement of the eyebrow y value.
+				eye_bottom = ((shape[27][1]) + (shape[28][1]))/2 # Take an average measurement of the eye y value.
+				eye_height = eye_bottom - eye_top # Calculate the distance between the eyes and the eyebrows.
 				if(eye_height/base_line > 0.22):
-					#print("Eyebrows raised! - ",(eye_height/base_line))
-					gesture_arr.append(1)
-					#print(gesture_arr)
+					gesture_arr.append(1) # If the calculated distance exceeds the threshold, add an eyebrow raise gesture to the array (1).
 				
 				# Eye shut
-				eyelid_top = ((shape[37][1]) + (shape[38][1]) + (shape[43][1]) + (shape[44][1]))/4
-				eyelid_bottom = ((shape[40][1]) + (shape[41][1]) + (shape[46][1]) + (shape[47][1]))/4
-				eyelid_height = eyelid_bottom - eyelid_top
+				eyelid_top = ((shape[37][1]) + (shape[38][1]) + (shape[43][1]) + (shape[44][1]))/4 # Take an average measurement of the upper eyelid y value.
+				eyelid_bottom = ((shape[40][1]) + (shape[41][1]) + (shape[46][1]) + (shape[47][1]))/4 # Take an average measurement of the lower eyelid y value.
+				eyelid_height = eyelid_bottom - eyelid_top # Calculate the distance between the eyelids.
 				if(eyelid_height/base_line < 0.022):
-					#print("Eye close detected! - ",(eyelid_height/base_line))
-					gesture_arr.append(2)
-					#print(gesture_arr)
+					gesture_arr.append(2) # If the calculated distance is smaller than the threshold, add an eye close gesture to the array (2).
 				
 				# Smile
-				mouth_left = ((shape[48][0]) + (shape[49][0]) + (shape[59][0]) + (shape[60][0]))/4
-				mouth_right = ((shape[53][0]) + (shape[54][0]) + (shape[55][0]) + (shape[64][0]))/4
-				mouth_width = mouth_right - mouth_left
+				mouth_left = ((shape[48][0]) + (shape[49][0]) + (shape[59][0]) + (shape[60][0]))/4 # Take an average measurement of the left side of the mouth.
+				mouth_right = ((shape[53][0]) + (shape[54][0]) + (shape[55][0]) + (shape[64][0]))/4 # Take an average measurement of the right side of the mouth.
+				mouth_width = mouth_right - mouth_left # Calculate the width of the mouth.
 				if(mouth_width/base_line > 0.34):
-					#print("Smile detected! - ",(mouth_width/base_line))
-					gesture_arr.append(3)
-					#print(gesture_arr)
+					gesture_arr.append(3) # If the calculated distance exceeds the threshold, add a smile gesture to the array (3).
 				
 				# Anger
-				nose_top = ((shape[21][1]) + (shape[22][1]))/2
-				nose_bottom = ((shape[31][1]) + (shape[35][1]))/2
-				nose_height = nose_bottom - nose_top
-				#print(nose_height/base_line)
+				nose_top = ((shape[21][1]) + (shape[22][1]))/2 # Take an average measurement of the innermost part of the eyebrows (i.e. the part that moves downwards when someone frowns).
+				nose_bottom = ((shape[31][1]) + (shape[35][1]))/2 # Take an average measurement of the bottom of the nose. In the future it may be more accurate to use this in combination with an upper lip measurement, as the upper lip usually raises upwards when snarling.
+				nose_height = nose_bottom - nose_top # Calculate the distance between the inner eyebrows and the bottom of the nose.
 				if(nose_height/base_line < 0.36):
-					#print("Anger detected! - ",(nose_height/base_line))
-					gesture_arr.append(4)
-					#print(gesture_arr)
+					gesture_arr.append(4) # If the calculated distance is smaller than the threshold, add a snarl gesture to the array (4).
 				
-				gesture_output = max(set(gesture_arr), key=gesture_arr.count)
-				#gesture_output = int(round(mean(gesture_arr)))
-				#print(gesture_output)
+				gesture_output = max(set(gesture_arr), key=gesture_arr.count) # Calculate the mode of the gesture array. Used to eliminate noise from the detections.
 				
 				if(gesture_output == 0):
-					print("Mouth opened! - ",(mouth_height/base_line))
+					print("Mouth opened! - ",(mouth_height/base_line)) # If the most common number in the array is a 0, output a mouth opened gesture recognition
 				elif(gesture_output == 1):
-					print("Eyebrows raised! - ",(eye_height/base_line))
+					print("Eyebrows raised! - ",(eye_height/base_line)) # If the most common number in the array is a 1, output an eyebrows raised gesture recognition
 				elif(gesture_output == 2):
-					print("Eye close detected! - ",(eyelid_height/base_line))
+					print("Eye close detected! - ",(eyelid_height/base_line)) # If the most common number in the array is a 2, output an eyes closed gesture recognition
 				elif(gesture_output == 3):
-					print("Smile detected! - ",(mouth_width/base_line))
+					print("Smile detected! - ",(mouth_width/base_line)) # If the most common number in the array is a 3, output a smile gesture recognition
 				elif(gesture_output == 4):
-					print("Anger detected! - ",(nose_height/base_line))
+					print("Anger detected! - ",(nose_height/base_line)) # If the most common number in the array is a 4, output a snarl gesture recognition
 				
-				if(gesture_output == 0 or gesture_output == 1 or gesture_output == 2 or gesture_output == 3 or gesture_output == 4):
-					gesture_arr = deque(maxlen=20)
-					gesture_arr.extend([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
+				if(gesture_output == 0 or gesture_output == 1 or gesture_output == 2 or gesture_output == 3 or gesture_output == 4): # If any gesture is calculated, reset the gesture array so it can be used to calculate the next gesture
+					gesture_arr = deque(maxlen=20) # Recreate the array
+					gesture_arr.extend([-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]) # Setting all numbers in the array to the non-gesture numbers
 
 			# Show the image
 			cv2.imshow("Output", frame)
