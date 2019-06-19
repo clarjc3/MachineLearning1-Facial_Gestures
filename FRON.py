@@ -1,6 +1,6 @@
 # Author: Joshua Clarke
 # NOTE: This program is not intended to be used as the final product, it was used for code testing and development of features for the final product.
-# 		Code was copied from here to the final product repo and the latest version can be found at: https://github.com/manulea/MITGUI
+# Code was copied from here to the final product repo and the latest version can be found at: https://github.com/manulea/MITGUI
 
 import sys
 # Libraries for the PyQt5 GUI
